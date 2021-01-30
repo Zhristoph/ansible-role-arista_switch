@@ -1,0 +1,8 @@
+all:
+  hosts:
+  children:
+    switches:
+      hosts:
+        switch01:
+      vars:
+        secretLevel: secureSecret

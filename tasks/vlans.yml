@@ -1,0 +1,45 @@
+- name: Set vlan configure session name
+  tags: arista, vlans
+  set_fact:
+    configSession: vlans-{{ ansible_date_time.iso8601_basic }}
+    configExitAction: abort
+
+- name: Create configure session
+  tags: arista, vlans
+  arista.eos.eos_command:
+    commands:
+     - configure session {{ configSession }}
+
+- name: Configure VLANs for real
+  tags: arista, vlans
+  arista.eos.eos_command:
+    commands:
+     - configure
+     - vlan {{ item.vlanid }}
+     - name {{ item.name }}
+     - no comment
+     - "!! {{ item.comment }}"
+  loop: "{{ vlans }}"
+
+- name: Timer commit configure session
+  tags: arista, vlans
+  arista.eos.eos_command:
+    commands:
+     - commit timer 00:01:00
+
+- name: Did our vlan session fail?
+  tags: arista, vlans
+  pause:
+    seconds: 10
+
+- name: Reconsider config exit action
+  tags: arista, vlans
+  set_fact:
+    configExitAction: commit
+    writeMePlease: true
+
+- name: Commit configure session
+  tags: arista, vlans
+  arista.eos.eos_command:
+    commands:
+     - configure session {{ configSession }} {{ configExitAction }}

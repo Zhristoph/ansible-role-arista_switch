@@ -1,0 +1,70 @@
+ansible_connection: ansible.netcommon.network_cli
+ansible_network_os: arista.eos.eos
+ansible_user: admin
+ansible_password: admin
+ansible_become: yes
+ansible_become_method: enable
+
+vlans:
+  - vlanid: 10
+    name: "prod"
+    comment: "Here runs the production shit."
+  - vlanid: 11
+    name: "test"
+    comment: "Test the shit here."
+  - vlanid: 12
+    name: "stage1"
+    comment: "Danger, unstable environment."
+   
+userRoles:
+ - roleName: network-admin
+   members:
+    - admin
+   hosts:
+    - server01
+    - server02
+    - server03
+   hasSudo: yes
+ - roleName: staff
+   members:
+    - user01
+    - user02
+   hosts:
+    - server01
+    - server02
+    - server03
+   hasSudo: no
+
+userAccounts:
+  admin:
+    login: admin
+    secureSecret: secureHashedPasswordString
+    verySecureSecret: verySecureHadhedPasswordString
+    extraordinarySecureSecret: extraordinarySecureHashedPasswordString
+    sshkey: "ssh-ed25519 sjfskfsojsfojoo34jjjf034j4jj40jj4rj4j44j"
+  user01:
+    login: user01
+    secureSecret: secureHashedPasswordString01
+    verySecureSecret: verySecureHadhedPasswordString01
+    extraordinarySecureSecret: extraordinarySecureHashedPasswordString01
+  user02:
+    login: user02
+    secureSecret: secureHashedPasswordString02
+    verySecureSecret: verySecureHadhedPasswordString02
+    extraordinarySecureSecret: extraordinarySecureHashedPasswordString02
+
+switchInterfaces:
+  - number: 1
+    description: uplink
+    vlans: 10
+    vlanMode: "access"
+    shutdown: false
+  - number: 2
+    description: srv01
+    vlans: 10, 11
+    vlanMode: "trunk"
+    shutdown: false
+    vlanNative: "10"
+  - number: 3
+    description: empty
+    shutdown: true

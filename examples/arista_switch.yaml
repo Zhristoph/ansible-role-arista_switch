@@ -1,0 +1,6 @@
+- name: Configure Arista Switches
+  gather_facts: yes
+  hosts: switches
+  become: yes
+  roles:
+    - arista_switch

@@ -1,0 +1,58 @@
+- name: Set users configure session name
+  tags: arista, users
+  set_fact:
+    configSession: users-{{ ansible_date_time.iso8601_basic }}
+    configExitAction: abort
+
+- name: Add network admins 
+  tags: arista, users
+  set_fact:
+    localNetworkAdmins: "{{ localNetworkAdmins | union(item.members) }}"
+  with_items:
+   - "{{ userRoles }}"
+  when: item.roleName == "network-admin"
+
+- name: Local network admins attributes
+  tags: arista, users
+  set_fact:
+    localNetworkAdminsAttributes: "{{ localNetworkAdmins | map('extract', userAccounts ) | list }}"
+
+- name: Create configure session
+  tags: arista, users
+  arista.eos.eos_command:
+    commands:
+     - configure session {{ configSession }}
+
+- name: Configure network-admin users
+  tags: arista, users
+  arista.eos.eos_command:
+    commands:
+     - username {{ item.login }} privilege 15 role network-admin secret sha512 {{ [ secretLevel ] | map('extract', item ) | list | first }}
+     - username {{ item.login }} ssh-key {{ item.sshkey }}
+  loop: "{{ localNetworkAdminsAttributes }}"
+
+- name: Timer commit configure session
+  tags: arista, users
+  arista.eos.eos_command:
+    commands:
+     - commit timer 00:01:00
+ 
+- name: Did our users session fail?
+  tags: arista, users
+  pause:
+    seconds: 10
+
+- name: Reset connection to switch
+  tags: arista, users
+  meta: reset_connection
+
+- name: Reconsider config exit action
+  tags: arista, basic
+  set_fact:
+    configExitAction: commit
+    writeMePlease: true
+
+- name: Commit configure session
+  arista.eos.eos_command:
+    commands:
+     - configure session {{ configSession }} {{ configExitAction }}

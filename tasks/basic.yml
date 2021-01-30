@@ -1,0 +1,50 @@
+- name: Set basic configure session name
+  tags: arista, basic
+  set_fact:
+    configSession: basic-{{ ansible_date_time.iso8601_basic }}
+    configExitAction: abort
+
+- name: Create configure session
+  tags: arista, basic
+  arista.eos.eos_command:
+    commands:
+     - configure session {{ configSession }}
+
+- name: Configure hostname
+  tags: arista, basic
+  eos_system:
+    hostname: "{{ inventory_hostname }}"
+
+- name: Enable non-Arista transceivers
+  tags: arista, basic
+  arista.eos.eos_command:
+    commands:
+     - service unsupported-transceivers {{ nonAristaTransceiversAreOK }}
+  when: nonAristaTransceiversAreOK|length
+
+- name: Run various commands
+  tags: arista, basic
+  arista.eos.eos_command:
+    commands: "{{ aristaOptionalsCommands }}"
+
+- name: Timer commit configure session
+  tags: arista, basic
+  arista.eos.eos_command:
+    commands:
+     - commit timer 00:01:00
+
+- name: Did our basic session fail?
+  tags: arista, basic
+  pause:
+    seconds: 10
+
+- name: Reconsider config exit action
+  tags: arista, basic
+  set_fact:
+    configExitAction: commit
+    writeMePlease: true
+
+- name: Commit configure session
+  arista.eos.eos_command:
+    commands:
+     - configure session {{ configSession }} {{ configExitAction }}
