@@ -17,8 +17,8 @@
      - interface Ethernet {{ item.number }}
      - description {{ item.description }}
      - switchport mode trunk 
-     - switchport trunk allowed vlan {{ item.vlans }}
-     - "{{ ( item.vlanNative is defined and item.vlanNative|length) | ternary('switchport trunk native vlan ', '', '') + item.vlanNative | default() }}"
+     - "{{ ( item.vlans is defined and item.vlans|length) | ternary('switchport trunk allowed vlan ', 'no switchport trunk allowed vlan', '') + item.vlans | default() }}"
+     - "{{ ( item.vlanNative is defined and item.vlanNative|length) | ternary('switchport trunk native vlan ', 'no switchport trunk native vlan', '') + item.vlanNative | default() }}"
      - "{{ item.shutdown | ternary('shutdown', 'no shutdown', omit) }}"
   loop: "{{ switchInterfaces }}"
   when: item.vlanMode is defined and item.vlanMode == "trunk"
