@@ -28,9 +28,9 @@
   arista.eos.eos_command:
     commands:
      - interface Ethernet {{ item.number }}
+     - description {{ item.description }}
      - switchport mode access
      - switchport access vlan {{ item.vlans }}
-     - description {{ item.description }}
      - "{{ item.shutdown | ternary('shutdown', 'no shutdown', omit) }}"
   loop: "{{ switchInterfaces }}"
   when: item.vlanMode is defined and item.vlanMode == "access"
