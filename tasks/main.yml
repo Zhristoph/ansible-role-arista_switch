@@ -1,33 +1,14 @@
-- name: Need we a new startup config?
-  tags: arista, basic, users, vlans, interfaces
-  set_fact:
-    writeMePlease: false
-
 - include: basic.yml
+  tags: arista, basic
 
 - include: users.yml
+  tags: arista, users
   when: userAccounts is defined and userRoles is defined
 
 - include: vlans.yml
+  tags: arista, vlans
   when: vlans is defined and vlans|length
 
 - include: interfaces.yml
+  tags: arista, interfaces
   when: switchInterfaces|length
-
-- name: Wait if config fails in the next 10 seconds?
-  tags: arista, basic, users, vlans, interfaces
-  pause:
-    seconds: 10
-  when: writeMePlease
-  
-- name: Reset connection to switch
-  tags: arista, basic, users, vlans, interfaces
-  meta: reset_connection
-
-- name: Write to startup config
-  tags: arista, basic, users, vlans, interfaces
-  arista.eos.eos_command:
-    commands:
-     - write
-  when: writeMePlease
-

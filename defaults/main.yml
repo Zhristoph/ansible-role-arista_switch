@@ -1,4 +1,5 @@
 aristaOptionalsCommands:
+  - configure
   - logging console informational
   - ip routing
   - ipv6 unicast-routing
@@ -6,3 +7,4 @@ localNetworkAdmins: []
 nonAristaTransceiversAreOK: ""
 switchInterfaces: []
 switchInterfacesCommands: []
+secondsBeforeWriteCfg: 10

@@ -1,15 +1,3 @@
-- name: Set switchInterfaces configure session name
-  tags: arista, interfaces
-  set_fact:
-    configSession: interfaces-{{ ansible_date_time.iso8601_basic }}
-    configExitAction: abort
-
-- name: Create configure session
-  tags: arista, interfaces
-  arista.eos.eos_command:
-    commands:
-     - configure session {{ configSession }}
-
 - name: Configure vlan trunk interfaces
   tags: arista, interfaces
   arista.eos.eos_command:
@@ -51,24 +39,7 @@
     commands: "{{ switchInterfacesCommands }}"
   when: switchInterfacesCommands|length
 
-- name: Timer commit configure session
+- name: Include write to startup config
+  include: writeToStartupCfg.yml  
   tags: arista, interfaces
-  arista.eos.eos_command:
-    commands:
-     - commit timer 00:01:00
 
-- name: Did our interfaces session fail?
-  tags: arista, interfaces
-  pause:
-    seconds: 10
-
-- name: Reconsider config exit action
-  tags: arista, basic
-  set_fact:
-    configExitAction: commit
-    writeMePlease: true
-
-- name: Commit configure session
-  arista.eos.eos_command:
-    commands:
-     - configure session {{ configSession }} {{ configExitAction }}
