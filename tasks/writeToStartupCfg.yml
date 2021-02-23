@@ -1,6 +1,10 @@
 - name: Reset connection to switch
   meta: reset_connection
 
+- name: Clear registered variable
+  set_fact:
+          diffs: ""
+
 - name: Get startup config diffs
   arista.eos.eos_command:
     commands:
