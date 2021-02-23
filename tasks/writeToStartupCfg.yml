@@ -11,16 +11,16 @@
 - name: Show startup config diffs
   debug:
     msg: "{{ diffs.stdout_lines[1] }}"
-  when: diffs.stdout_lines[1]|length>1 
+  when: diffs.stdout_lines| length > 1 and diffs.stdout_lines[1]|length>1
 
 - name: Does the diffs looking valid to you?
   pause:
     seconds: "{{ secondsBeforeWriteCfg }}"
-  when: diffs.stdout_lines[1]|length>1 
+  when: diffs.stdout_lines| length > 1 and diffs.stdout_lines[1]|length>1
 
 - name: Write config to startup-config
   arista.eos.eos_command:
     commands:
       - write
-  when: diffs.stdout_lines[1]|length>1 
+  when: diffs.stdout_lines| length > 1 and diffs.stdout_lines[1]|length>1
 
